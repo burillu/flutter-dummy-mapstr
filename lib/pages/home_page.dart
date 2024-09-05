@@ -2,6 +2,8 @@ import 'package:dummy_mapstr/model/model_city.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/services.dart' as services;
+import 'package:material_floating_search_bar_2/material_floating_search_bar_2.dart';
+// import 'package:material_floating_search_bar/material_floating_search_bar.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -27,9 +29,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: Stack(
-      children: [
-        map(),
-      ],
+      children: [map(), searchBar()],
     ));
   }
 
@@ -40,7 +40,7 @@ class _HomePageState extends State<HomePage> {
           if (snapShot.connectionState != ConnectionState.done) {
             return CircularProgressIndicator();
           } else {
-            print(snapShot.requireData);
+            //print(snapShot.requireData);
             return Expanded(
               child: GoogleMap(
                 style: snapShot.requireData,
@@ -49,7 +49,7 @@ class _HomePageState extends State<HomePage> {
                 zoomControlsEnabled: false,
                 initialCameraPosition: CameraPosition(
                   zoom: 15,
-                  target: cities[0].latLng,
+                  target: cities[1].latLng,
                 ),
               ),
             );
@@ -57,18 +57,23 @@ class _HomePageState extends State<HomePage> {
         });
   }
 
-  // Widget searchBar() {
-  //   return Positioned(
-  //     top: 50,
-  //     right: 0,
-  //     left: 0,
-  //     child: SizedBox(
-  //       height: 60,
-  //       child: FloatingSearchBar(
-  //           builder: (context, animation) => ListTile(
-  //                 title: Text(cities[0].name),
-  //               )),
-  //     ),
-  //   );
-  // }
+  Widget searchBar() {
+    return FloatingSearchBar(
+        builder: (context, animation) => ClipRRect(
+              borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(8),
+                  bottomRight: Radius.circular(8)),
+              child: Material(
+                elevation: 4,
+                child: Column(
+                  children: List.generate(
+                    cities.length,
+                    (index) => ListTile(
+                      title: Text(cities[index].name),
+                    ),
+                  ),
+                ),
+              ),
+            ));
+  }
 }
