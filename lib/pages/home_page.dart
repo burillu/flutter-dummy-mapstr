@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dummy_mapstr/model/model_city.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -12,6 +14,16 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late Future<dynamic> jsonStyle;
+  final googleMapsController = Completer<GoogleMapController>();
+
+  void navigateToCity(ModelCity modelCity) async {
+    final controller = await googleMapsController.future;
+
+    controller.animateCamera(
+      CameraUpdate.newLatLng(modelCity.latLng),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -43,12 +55,15 @@ class _HomePageState extends State<HomePage> {
             //print(snapShot.requireData);
             return Expanded(
               child: GoogleMap(
+                onMapCreated: (controller) {
+                  googleMapsController.complete(controller);
+                },
                 style: snapShot.requireData,
                 myLocationButtonEnabled: true,
                 compassEnabled: true,
                 zoomControlsEnabled: false,
                 initialCameraPosition: CameraPosition(
-                  zoom: 15,
+                  zoom: 14,
                   target: cities[1].latLng,
                 ),
               ),
@@ -69,6 +84,9 @@ class _HomePageState extends State<HomePage> {
                   children: List.generate(
                     cities.length,
                     (index) => ListTile(
+                      onTap: () {
+                        navigateToCity(cities[index]);
+                      },
                       title: Text(cities[index].name),
                     ),
                   ),

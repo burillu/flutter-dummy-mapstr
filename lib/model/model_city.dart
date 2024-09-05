@@ -9,5 +9,7 @@ class ModelCity {
 
 const List<ModelCity> cities = [
   ModelCity(name: "Nikšić", latLng: LatLng(42.77328100, 18.94416000)),
-  ModelCity(name: "Cagliari", latLng: LatLng(39.227779, 9.111111))
+  ModelCity(name: "Casnate con Bernate", latLng: LatLng(45.7558411, 9.0737691)),
+  ModelCity(name: "Cagliari", latLng: LatLng(39.227779, 10.501111)),
+  ModelCity(name: "Roma", latLng: LatLng(41.902782, 12.496366)),
 ];
