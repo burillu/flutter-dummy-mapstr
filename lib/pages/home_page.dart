@@ -15,6 +15,9 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   late Future<dynamic> jsonStyle;
   final googleMapsController = Completer<GoogleMapController>();
+  List<ModelCity> filteredCities = cities;
+  Set<Marker> markers = {};
+  Set<Circle> circles = {};
 
   void navigateToCity(ModelCity modelCity) async {
     final controller = await googleMapsController.future;
@@ -28,6 +31,33 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     jsonStyle = getJsonData();
+
+    setState(() {
+      markers = cities.map(
+        (e) {
+          return Marker(
+              position: e.latLng,
+              markerId: MarkerId(e.name),
+              infoWindow: InfoWindow(
+                  title: e.name,
+                  snippet: "Latitudine: ${e.latLng.latitude.toString()}"));
+        },
+      ).toSet();
+
+      circles = cities.map(
+        (e) {
+          return Circle(
+              center: e.latLng,
+              circleId: CircleId(
+                e.name,
+              ),
+              radius: 300,
+              strokeColor: Colors.blue,
+              fillColor: Colors.blue.shade300.withAlpha(80),
+              strokeWidth: 2);
+        },
+      ).toSet();
+    });
   }
 
   getJsonData() async {
@@ -55,6 +85,8 @@ class _HomePageState extends State<HomePage> {
             //print(snapShot.requireData);
             return Expanded(
               child: GoogleMap(
+                markers: markers,
+                circles: circles,
                 onMapCreated: (controller) {
                   googleMapsController.complete(controller);
                 },
@@ -63,8 +95,8 @@ class _HomePageState extends State<HomePage> {
                 compassEnabled: true,
                 zoomControlsEnabled: false,
                 initialCameraPosition: CameraPosition(
-                  zoom: 14,
-                  target: cities[1].latLng,
+                  zoom: 15,
+                  target: cities[0].latLng,
                 ),
               ),
             );
@@ -74,6 +106,16 @@ class _HomePageState extends State<HomePage> {
 
   Widget searchBar() {
     return FloatingSearchBar(
+        onQueryChanged: (query) {
+          setState(() {
+            filteredCities = cities
+                .where(
+                  (element) =>
+                      element.name.toLowerCase().contains(query.toLowerCase()),
+                )
+                .toList();
+          });
+        },
         builder: (context, animation) => ClipRRect(
               borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(8),
@@ -82,12 +124,12 @@ class _HomePageState extends State<HomePage> {
                 elevation: 4,
                 child: Column(
                   children: List.generate(
-                    cities.length,
+                    filteredCities.length,
                     (index) => ListTile(
                       onTap: () {
-                        navigateToCity(cities[index]);
+                        navigateToCity(filteredCities[index]);
                       },
-                      title: Text(cities[index].name),
+                      title: Text(filteredCities[index].name),
                     ),
                   ),
                 ),
